@@ -1,5 +1,5 @@
 ###############################################################
-# Project: GPU saturation scorer
+# Project: GPU Saturation Scorer
 #
 # File Name: report.py
 #
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from scipy.interpolate import griddata
 from scipy.spatial.qhull import QhullError
-from GSS.io.format import *
+from GSSR.io.format import *
 
 from pathlib import Path
 
@@ -232,22 +232,31 @@ class PDFReport:
         
         # Plot the actual y line over the shaded area
         ax1.plot(x, y_avg, label=metric, color='b', linewidth=2.0)
-        ax1.set_xlabel('Time')
-        ax1.set_ylabel(metric, labelpad=10)
+        ax1.set_xlabel('Time (s)')
+        
+
+        units = getMetricUnits(metric)
+        ax1.set_ylabel(metric + " (" + units + ")", labelpad=10)
         miny, maxy = min(min_y), max(max_y)
         ax1.set_ylim(miny - 0.1 * abs(miny), maxy + 0.1 * abs(maxy))
         ax1.grid(alpha=0.8)
 
-        # Set 10 ticks on the y-axis
-        yticks = np.linspace(miny, maxy, 8)
+        # Set 10 ticks on the y-axis     
+        if maxy <=1 :
+            yticks = np.linspace(miny, maxy, 8)
+        else: 
+            yticks = np.linspace(miny, maxy, 11, dtype = int)
+       
+
         # Set yticklabels to scientific notation with 1 decimal place            
         y_avg_max = max(y_avg)
         if 1.0 >= y_avg_max >= 0.1: # Percentages
             yticklabels = [f"{y:.2f}" for y in yticks]
         else:
             yticklabels = [f"{y:.1e}" for y in yticks]
-        ax1.set_yticks(yticks, yticklabels)
-        
+        #ax1.set_yticks(yticks, yticklabels)       
+        ax1.set_yticks(yticks)
+             
         # Create the distribution plot (right)
         ax2 = fig.add_subplot(gs[1], sharey=ax1)
         n_bins = 16
@@ -311,9 +320,17 @@ class PDFReport:
         
         print("Generating time series plots...")
         for metric in tqdm(metrics):
+            #print(type(data[metric]))
             y_avg = data[metric].to_numpy()
+            #units = getMetricUnits(metric)
+
+            #if units == "%" :
+            #    min_y = 0
+            #    max_y = 100
+            #else :
             min_y = data[f"min_{metric}"].to_numpy()
             max_y = data[f"max_{metric}"].to_numpy()
+        
             figpath = self.plot_time_series(t, y_avg, min_y, max_y, metric)
             self.pdf.image(figpath, x=self.pdf.l_margin, w=self.pdf.w - self.pdf.l_margin - self.pdf.r_margin)
             self.pdf.ln(5)
@@ -329,7 +346,7 @@ class PDFReport:
         ax.fill_between(x, min_y, max_y, color='lightblue', alpha=0.5, label='Range')
         ax.plot(x, y_avg, label=metric, color='b', linewidth=2.0)
         ax.set_xlabel('Global GPU index')
-        ax.set_ylabel(metric, labelpad=10)
+        ax.set_ylabel(metric + " (" + getMetricUnits(metric) + ")", labelpad=10)
         miny, maxy = min(min_y), max(max_y)
         ax.set_ylim(miny - 0.1 * abs(miny), maxy + 0.1 * abs(maxy))
         ax.grid(alpha=0.8)

@@ -15,9 +15,9 @@ To install from a specific branch, e.g. the development branch
 ```
 pip install git+https://github.com/eth-cscs/GPU-saturation-scorer.git@dev
 ```
-To install a specific release from a tag, e.g. gssr-v0.3
+To install a specific release from a tag, e.g. v0.3.3
 ```
-pip install git+https://github.com/eth-cscs/GPU-saturation-scorer.git@gssr-v0.3
+pip install git+https://github.com/eth-cscs/GPU-saturation-scorer.git@v0.3.3
 ```
 
 ## Profile
@@ -28,10 +28,10 @@ srun python test.py
 ```
 The srun command should be modified as follows.:
 ```
-srun gssr profile -wrap="python abc.py"
+srun gssr profile python test.py
 ```
+
 * The gssr option to run is "profile".
-* The "---wrap" flag will wrap the command you would like to run.
 * The default output directory is "profile_out_{job_id}"
 * You can also set a label to this output data if you prefer with the "-l" flag
 
@@ -45,7 +45,7 @@ gssr analyze -i ./profile_out
 ```
 gssr analyze -i ./profile_out --report
 ```
-A/Multiple PDF report(s) will be generated containing all the generated plots.
+PDF report(s) will be generated containing all the generated plots.
 
 ### Exporting the Profiled Output as a SQLite3 file
 ```

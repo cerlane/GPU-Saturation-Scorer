@@ -1,12 +1,12 @@
 ###############################################################
 # Project: GPU saturation scorer
 #
-# File Name: GSS.py
+# File Name: GSSR.py
 #
 # Description:
-# This file implements the GSS class, which is used to drive the
-# GSS tool. It contains the main driver functions for the subcommands
-# of the GSS tool. The GSS class is responsible for parsing the command
+# This file implements the GSSR class, which is used to drive the
+# GSSR tool. It contains the main driver functions for the subcommands
+# of the GSSR tool. The GSSR class is responsible for parsing the command
 # line arguments and calling the appropriate subcommand.
 #
 # Authors:
@@ -22,21 +22,21 @@ import sys
 import argparse
 
 # Needed by all subcommands
-from GSS.utils.import_check import check_import_requirements
+from GSSR.utils.import_check import check_import_requirements
 
-# Driver functions for the GSS tool
-class GSS:
+# Driver functions for the GSSR tool
+class GSSR:
     """
     Description:
-    This class is used to drive the GSS tool.
-    It contains the main driver functions for the subcommands of the GSS tool. 
+    This class is used to drive the GSSR tool.
+    It contains the main driver functions for the subcommands of the GSSR tool. 
 
     Attributes:
     - args: The parsed command line arguments.
     
     Methods:
     - __init__(self, args): Constructor method.
-    - run(self): Run the GSS tool.
+    - run(self): Run the GSSR tool.
     - profile(self): Driver function for the profile subcommand.
     - export(self): Driver function for the export subcommand.
     - analyze(self): Driver function for the analyze subcommand.
@@ -45,13 +45,14 @@ class GSS:
     - None
 
     """
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace, default_outputdir: str ) -> None:
         """
         Description:
         Constructor method.
 
         Parameters:
         - args: The parsed command line arguments.
+        - default_outputdir: Default output directory when -o flag is not used
 
         Returns:
         - None
@@ -60,11 +61,12 @@ class GSS:
         - None
         """
         self.args = args
+        self.default_outputdir = default_outputdir
 
     def run(self) -> None:
         """
         Description:
-        Run the GSS tool.
+        Run the GSSR tool.
 
         Parameters:
         - None
@@ -98,18 +100,22 @@ class GSS:
           If something is missing, it will throw an error.
         - We expect this method to be called concurrently by multiple processes.
         """
-        from GSS.utils.import_check import load_dcgm
+        from GSSR.utils.import_check import load_dcgm 
 
         # Check if all requirements are installed
         check_import_requirements()
 
-        # Check if DCGM bindings are available before importing GSS modules
-        load_dcgm()
+        # Check if DCGM bindings are available before importing GSSR modules
+        load_dcgm() 
 
-        # Import GSS modules
-        from GSS.utils.slurm_handler import SlurmJob
+        # Import GSSR modules
+        from GSSR.utils.slurm_handler import SlurmJob
         from .profile.gpu_metrics_profiler import GPUMetricsProfiler
 
+        #Ensure that the folder depth is the same whether -o flag is used or not
+        if self.args.output_folder != self.default_outputdir :
+            self.args.output_folder += "/" +self.default_outputdir
+        
         # Create SlurmJob object - this will read the Slurm environment
         job = SlurmJob(
             output_folder=self.args.output_folder,
@@ -125,8 +131,9 @@ class GSS:
             output_format="json"
         )
 
-        # Run workload
-        profiler.run(self.args.wrap)
+        #profiler.run(self.args.wrap) 
+        final_command = " ".join(list(self.args.command))
+        profiler.run(final_command)
 
     def export(self, in_path, output) -> None:
         """
@@ -147,8 +154,8 @@ class GSS:
         
         # Check if all requirements are installed
 
-        # Import GSS modules
-        from GSS.export.export import ExportDataHandler
+        # Import GSSR modules
+        from GSSR.export.export import ExportDataHandler
 
         # Check that input path is a folder
         if not os.path.isdir(in_path):
@@ -222,7 +229,7 @@ class GSS:
         # Check if all requirements are installed
         check_import_requirements()
 
-        from GSS.analysis.analysis import GPUMetricsAnalyzer
+        from GSSR.analysis.analysis import GPUMetricsAnalyzer
 
         # Check if input_file is a directory
         if os.path.isdir(self.args.input):    
@@ -238,7 +245,7 @@ class GSS:
         analyzer = GPUMetricsAnalyzer(
             db_file=db
         )
-
+   
         # Print summary of metrics
         if not self.args.silent:
             analyzer.summary()
