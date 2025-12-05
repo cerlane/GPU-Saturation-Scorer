@@ -28,10 +28,10 @@ srun python test.py
 ```
 The srun command should be modified as follows.:
 ```
-srun gssr profile -wrap="python abc.py"
+srun gssr profile python test.py
 ```
+
 * The gssr option to run is "profile".
-* The "---wrap" flag will wrap the command you would like to run.
 * The default output directory is "profile_out_{job_id}"
 * You can also set a label to this output data if you prefer with the "-l" flag
 
