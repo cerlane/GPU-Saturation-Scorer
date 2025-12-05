@@ -45,7 +45,7 @@ gssr analyze -i ./profile_out
 ```
 gssr analyze -i ./profile_out --report
 ```
-A/Multiple PDF report(s) will be generated containing all the generated plots.
+PDF report(s) will be generated containing all the generated plots.
 
 ### Exporting the Profiled Output as a SQLite3 file
 ```
