@@ -209,7 +209,7 @@ class GPUMetricsProfiler:
             "elapsed": elapsed,
             "sampling_time": self.sampling_time,
             "n_samples": n_samples,
-            "cmd": command.pop()
+            "cmd": command #.pop()
         }
 
         # Dump data to file

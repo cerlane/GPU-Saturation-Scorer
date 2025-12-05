@@ -215,6 +215,8 @@ def format_byte(value: float) -> str:
     else:
         return f"{value / 1e9:.2f} GB"
 
+  
+
 def format_generic(value) -> str:
     """
     Description:
@@ -261,6 +263,8 @@ def format_utilization(value):
     """
     return format_percent(value/100.0)
 
+
+# This is for the pdf table report
 metric_names2formats = {
 "gpu_utilization": format_utilization,
 "fb_free": format_fb,
@@ -280,3 +284,26 @@ metric_names2formats = {
 "nvlink_tx_bytes": format_byte_rate,
 "nvlink_rx_bytes": format_byte_rate
 }
+
+metric_names2Units = {
+"gpu_utilization": "%",
+"fb_free": "MB",
+"fb_used": "MB",
+"fb_total": "MB",
+"fb_resv": "MB",
+"sm_active": "%",
+"sm_occupancy": "%",
+"tensor_active": "%",
+"fp64_active": "%",
+"fp32_active": "%",
+"fp16_active": "%",
+"total_flop_activity": "%",
+"dram_active": "%",
+"pcie_tx_bytes": "byte/s",
+"pcie_rx_bytes": "byte/s",
+"nvlink_tx_bytes": "byte/s",
+"nvlink_rx_bytes": "byte/s"
+}
+
+def getMetricUnits(metric):
+    return metric_names2Units[metric]

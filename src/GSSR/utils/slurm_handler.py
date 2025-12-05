@@ -118,7 +118,8 @@ class SlurmJob:
         self.hostname = socket.gethostname()
 
         # if output_folder is the default 'profile_out', then append job_id to it
-        if self.output_folder=='profile_out':
+        #if self.output_folder=='profile_out':
+        if self.output_folder.endswith('profile_out'):
             self.output_folder += f"_JobID_{self.job_id}"
 
         # Set output directory for specific job

@@ -43,16 +43,18 @@ def main():
     subparsers = parser.add_subparsers(dest='subcommand', help='sub-command help')
 
     # Profile subcommand
+    outputdir_default_val = 'profile_out'
     parser_profile = subparsers.add_parser('profile', help='Profile command help')
-    parser_profile.add_argument('--wrap', '-w', metavar='wrap', type=str, nargs='+', help='Wrapped command to run', required=True)
+    #parser_profile.add_argument('--wrap', '-w', metavar='wrap', type=str, nargs='+', help='Wrapped command to run', required=True)
+    parser_profile.add_argument('command', nargs=argparse.REMAINDER, help='Command to run, should be positioned as the last argument of gssr command')
     parser_profile.add_argument('--label', '-l', metavar='label', type=str, help='Workload label', default='unlabeled')
     parser_profile.add_argument('--max-runtime', '-m', metavar='max-runtime', type=int, default=0, help='Maximum runtime of the wrapped command in seconds')
     parser_profile.add_argument('--sampling-time', '-t', metavar='sampling-time', type=int, default=500, help='Sampling time of GPU metrics in milliseconds')
     parser_profile.add_argument('--force-overwrite', '-f', action='store_true', help='Force overwrite of output file', default=False)
     parser_profile.add_argument('--append', '-a', action='store_true', help='Append profiling data to the output file', default=False)
-    parser_profile.add_argument('--output-folder', '-o', metavar='output-folder', type=str, default='profile_out', help='Output folder for the profiling data')
+    parser_profile.add_argument('--output-folder', '-o', metavar='output-folder', type=str, default=outputdir_default_val, help='Output folder for the profiling data')
 
-    # Analyze subcommand
+    # Analyze subcommand 
     parser_analyze = subparsers.add_parser('analyze', help='Analyze command help')
     parser_analyze.add_argument('--input', '-i', type=str, required=True, help='Input folder or SQL file for analysis')
     parser_analyze.add_argument('--silent', '-s', action="store_true", default=False, help='Silent mode')
@@ -65,7 +67,7 @@ def main():
     args = parser.parse_args()
 
     # Run appropriate command
-    gssr_obj = GSSR(args)
+    gssr_obj = GSSR(args, outputdir_default_val)
 
     if args.subcommand in ['profile', 'export', 'analyze']:
         gssr_obj.run()

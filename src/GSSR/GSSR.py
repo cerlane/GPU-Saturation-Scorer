@@ -45,13 +45,14 @@ class GSSR:
     - None
 
     """
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace, default_outputdir: str ) -> None:
         """
         Description:
         Constructor method.
 
         Parameters:
         - args: The parsed command line arguments.
+        - default_outputdir: Default output directory when -o flag is not used
 
         Returns:
         - None
@@ -60,6 +61,7 @@ class GSSR:
         - None
         """
         self.args = args
+        self.default_outputdir = default_outputdir
 
     def run(self) -> None:
         """
@@ -98,18 +100,22 @@ class GSSR:
           If something is missing, it will throw an error.
         - We expect this method to be called concurrently by multiple processes.
         """
-        from GSSR.utils.import_check import load_dcgm
+        from GSSR.utils.import_check import load_dcgm 
 
         # Check if all requirements are installed
         check_import_requirements()
 
         # Check if DCGM bindings are available before importing GSSR modules
-        load_dcgm()
+        load_dcgm() 
 
         # Import GSSR modules
         from GSSR.utils.slurm_handler import SlurmJob
         from .profile.gpu_metrics_profiler import GPUMetricsProfiler
 
+        #Ensure that the folder depth is the same whether -o flag is used or not
+        if self.args.output_folder != self.default_outputdir :
+            self.args.output_folder += "/" +self.default_outputdir
+        
         # Create SlurmJob object - this will read the Slurm environment
         job = SlurmJob(
             output_folder=self.args.output_folder,
@@ -125,8 +131,9 @@ class GSSR:
             output_format="json"
         )
 
-        # Run workload
-        profiler.run(self.args.wrap)
+        #profiler.run(self.args.wrap) 
+        final_command = " ".join(list(self.args.command))
+        profiler.run(final_command)
 
     def export(self, in_path, output) -> None:
         """
@@ -238,7 +245,7 @@ class GSSR:
         analyzer = GPUMetricsAnalyzer(
             db_file=db
         )
-
+   
         # Print summary of metrics
         if not self.args.silent:
             analyzer.summary()
