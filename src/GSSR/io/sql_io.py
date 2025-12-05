@@ -1,5 +1,5 @@
 ###############################################################
-# Project: GPU saturation scorer
+# Project: GPU Saturation Scorer
 #
 # File Name: sql_io.py
 #
@@ -12,7 +12,7 @@
 #
 ###############################################################
 
-from GSS.io.base_io import BaseIO
+from GSSR.io.base_io import BaseIO
 import os
 import sqlite3
 import pandas as pd
