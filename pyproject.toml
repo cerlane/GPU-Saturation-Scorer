@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = 'gssr'
 requires-python = ">=3.9"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
     "pandas",
     "matplotlib",

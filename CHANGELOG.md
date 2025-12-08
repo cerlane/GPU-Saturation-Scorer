@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.4] - 2025-12-08
+- Provide units for heatmaps
+
 ## [v0.3.3] - 2025-12-05
 - Remove --wrap / -w option and replace it with positional argument. Now user's command just have to be at the end of gssr command.
 - Fix bug when -o flag is used. One folder level is not created and caused issue when analyzing the results. 

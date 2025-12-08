@@ -406,7 +406,7 @@ class PDFReport:
         # Set labels and title
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('GPU ID (unique)')
-        ax.set_title(metric)
+        ax.set_title(metric + " (" + getMetricUnits(metric) + ")")
         plt.colorbar(contour, ax=ax, label="Metric Value")
 
         # Generate a unique filename for the plot
