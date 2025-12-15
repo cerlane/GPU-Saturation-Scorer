@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.4.1] - 2026-*-*
+- Update cvs text to replace fancy single quote with the standard single quote for fpdf to generate text correctly.
+
+
 ## [v0.4.0] - 2025-12-15
 - Provide units for heatmaps
 - Add assigned nodes (only first 300 characters so first 30 nodes)
