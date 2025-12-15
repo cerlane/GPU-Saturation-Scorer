@@ -15,9 +15,9 @@ To install from a specific branch, e.g. the development branch
 ```
 pip install git+https://github.com/eth-cscs/GPU-saturation-scorer.git@dev
 ```
-To install a specific release from a tag, e.g. v0.3.3
+To install a specific release from a tag, e.g. v0.4.0
 ```
-pip install git+https://github.com/eth-cscs/GPU-saturation-scorer.git@v0.3.3
+pip install git+https://github.com/eth-cscs/GPU-saturation-scorer.git@v0.4.0
 ```
 
 ## Profile
@@ -35,6 +35,11 @@ srun gssr profile python test.py
 * The default output directory is "profile_out_{job_id}"
 * You can also set a label to this output data if you prefer with the "-l" flag
 
+#### Output directory
+If you need to write the output to a specific directory, use the "-o" flag
+```
+srun gssr profile -o /abc/def python test.py
+```
 ## Analyze
 ### Metric Output
 The profiled output can be analysed as follows.:
@@ -45,7 +50,13 @@ gssr analyze -i ./profile_out
 ```
 gssr analyze -i ./profile_out --report
 ```
-PDF report(s) will be generated containing all the generated plots.
+PDF report(s) will be generated containing time-series and load-balancing plots.
+
+#### PDF File Output with Heatmap Plots
+```
+gssr analyze -i ./profile_out --report -hm
+```
+The generation of heatmaps is very time-consuming. Please turn it on at your own risk. 
 
 ### Exporting the Profiled Output as a SQLite3 file
 ```
