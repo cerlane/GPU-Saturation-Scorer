@@ -251,8 +251,9 @@ class GSSR:
             analyzer.summary()
 
         # Generate PDF report
-        if self.args.report:
-            analyzer.report()
+        if self.args.report:         
+                
+            analyzer.report(self.args.heatmap)
 
 
 

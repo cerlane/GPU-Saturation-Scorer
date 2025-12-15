@@ -59,6 +59,7 @@ def main():
     parser_analyze.add_argument('--input', '-i', type=str, required=True, help='Input folder or SQL file for analysis')
     parser_analyze.add_argument('--silent', '-s', action="store_true", default=False, help='Silent mode')
     parser_analyze.add_argument('--report', '-rp', action="store_true", default=False, help='Generate full PDF report')
+    parser_analyze.add_argument('--heatmap', '-hm', action="store_true", default=False, help='Include heatmap when generating pdf report')
     parser_analyze.add_argument('--export', '-e', metavar='export', type=str, default=":memory:", help='SQLite database file to export the raw data (default: in-memory database)')
     parser_analyze.add_argument('--output', '-o', type=str, required=False, help='Output file for analysis')
     parser_analyze.add_argument('--force-overwrite', '-f', action='store_true', help='Force overwrite of output file', default=False)

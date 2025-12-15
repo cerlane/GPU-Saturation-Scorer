@@ -27,6 +27,7 @@ def print_summary(job, data):
     [f"No. hosts: {job['n_hosts']}"],
     [f"No. processes: {job['n_procs']}"],
     [f"No. GPUs: {job['n_gpus']}"],
+    [f"Assigned nodes: {job['hostnames']}"],
     [f"Median elapsed time: {job['median_elapsed']:.2f}s"],
     ]
 
@@ -305,5 +306,20 @@ metric_names2Units = {
 "nvlink_rx_bytes": "byte/s"
 }
 
+metric_ratio = ["sm_active", 
+                "sm_occupancy", 
+                "tensor_active", 
+                "fp64_active",
+                "fp32_active",
+                "fp16_active",
+                "dram_active"
+                ]
+
 def getMetricUnits(metric):
     return metric_names2Units[metric]
+
+def getMetricRatio(metric):
+    if metric in metric_ratio:
+        return True
+    else:
+        return False

@@ -123,7 +123,7 @@ class GPUMetricsAnalyzer:
             shutil.rmtree(self.tmp_dir)
 
     # Generate PDF report
-    def report(self):
+    def report(self, heatmap):
         print_title("Generating reports for all jobs.")
         # Create temporary directory for storing images
         self.tmp_dir = f"/tmp/{uuid.uuid4()}"
@@ -137,7 +137,7 @@ class GPUMetricsAnalyzer:
             print_title(job['label'], color="red")    
             output_path = f"{job['label']}_report.pdf"
             report = PDFReport(self.db, job, output_path, self.tmp_dir)
-            report.write()
+            report.write(heatmap)
             print_title("[INFO] Generated report: " + f"{job['label']}_report.pdf", color="blue" )
 
         self.clean_tmp()
@@ -145,13 +145,14 @@ class GPUMetricsAnalyzer:
     def summary(self):
         # Get metadata for each job
         metadata = self.db.get_table("job_metadata")
+        print(metadata)
 
         print_title("Summary of Metrics:")
 
         for _, job in metadata.iterrows(): # Note: iterrows is slow, but we only expect very few rows
             
             ### Print global summary
-            print_title(f"Job ID: {job['job_id']} - {job['label']}", color="green")
+            print_title(f"Job ID: {job['job_id']} - {job['label']} ", color="green")
             
             # Get the raw data for the job
             data = self.db.query(f"SELECT {job['metrics']} FROM data WHERE job_id={job['job_id']} AND step_id={job['step_id']}")
@@ -161,7 +162,7 @@ class GPUMetricsAnalyzer:
             print_summary(job, agg)
 
             ### Print average data transfered
-            print_title("Transfered data:", color="red")
+            print_title("Transferred data:", color="red")
             
             ### Print verbose per-gpu summary
             print_title("GPU averages:", color="red")
@@ -187,6 +188,9 @@ class GPUMetricsAnalyzer:
             m = ["gpu_utilization", "sm_active", "total_flop_activity"]
             data[m] = format_df(data[m])
             print_df(data)
+
+            #verbose total_flop_activity meaining
+            print_title("[INFO] total_flop_activity = avg(tensor_active) + avg(fp16_active) + avg(fp32_active) + avg(fp64_active)", color="blue")
 
     # This function shows the metadata of the job and process
     def show_metadata(self):

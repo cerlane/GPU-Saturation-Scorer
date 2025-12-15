@@ -1,1 +1,2 @@
 include src/GSSR/fonts/*.ttf
+include src/GSSR/csv/*.csv

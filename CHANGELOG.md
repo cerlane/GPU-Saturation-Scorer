@@ -2,8 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v0.3.4] - 2025-12-08
+## [v0.4.0] - 2025-12-15
 - Provide units for heatmaps
+- Add assigned nodes (only first 300 characters so first 30 nodes)
+- Reduced command displayed also to 300 characters
+- Added Definition of Metrics on page 2 of report
+- Heatmap generation turned off by default as it is very time consuming when runtime is long (to turn it back on, use --heatmp or -hm flag)
+- Add explanation of total_flop_activity in commandline output as this value is only presented in commandline
 
 ## [v0.3.3] - 2025-12-05
 - Remove --wrap / -w option and replace it with positional argument. Now user's command just have to be at the end of gssr command.
