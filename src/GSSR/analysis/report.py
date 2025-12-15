@@ -36,6 +36,7 @@ logging.getLogger("fpdf").setLevel(logging.CRITICAL)
 
 DIR = Path(__file__).parent
 FONT_DIR = DIR / ".."  / "fonts"
+CSV_DIR = DIR / ".."  / "csv"
 
 class PDFReport:
     def __init__(self, db, job, outfile, tmp_dir):
@@ -110,7 +111,10 @@ class PDFReport:
     def draw_metadata(self):
         # Reduce length of cmd if it is too long. 
         if len(self.job['cmd'])>500:
-            self.job['cmd'] = f"{self.job['cmd'][0:500]}" + "..."
+            self.job['cmd'] = f"{self.job['cmd'][0:300]}" + "..."
+        # Reduce length of assigned_nodes if it is too long. 
+        if len(self.job['hostnames'])>500:
+            self.job['hostnames'] = f"{self.job['hostnames'][0:300]}" + "..."
         # Add metadata table to the report
         metadata = {
             "Job Metadata Entry": ["Job ID", 
@@ -120,6 +124,7 @@ class PDFReport:
                       "No. hosts", 
                       "No. processes",
                       "No. GPUs",
+                      "Assigned nodes",
                       "Median elapsed time"],
             "Value": [
                 self.job['job_id'],
@@ -129,6 +134,7 @@ class PDFReport:
                 self.job['n_hosts'],
                 self.job['n_procs'],
                 self.job['n_gpus'],
+                self.job['hostnames'],
                 f"{self.job['median_elapsed']:.2f}s"
             ]
         }
@@ -201,6 +207,8 @@ class PDFReport:
 
         step = 6
         for i in range(0, len(metrics), step):
+            #CERLANE
+            #print(data[["proc_id", "gpu_id", "hostname"] + metrics[i:i+step]])
             self.draw_dataframe(data[["proc_id", "gpu_id"] + metrics[i:i+step]])
             # Create new page if there are more metrics to display
             if i + step < len(metrics):
@@ -216,6 +224,12 @@ class PDFReport:
         self.pdf.ln()
 
     def plot_time_series(self, x, y_avg, min_y, max_y, metric):
+        # if data is a ratio, make it into a %
+        if getMetricRatio(metric) :
+            y_avg = y_avg*100
+            min_y = min_y*100
+            max_y = max_y*100
+
         # Downsample data to a maximum of 1000 points
         x, y_avg, min_y, max_y = self.downsample((x, y_avg, min_y, max_y))
 
@@ -336,6 +350,12 @@ class PDFReport:
             self.pdf.ln(5)
 
     def plot_load_balancing(self, y_avg, min_y, max_y, metric):
+        # if data is a ratio, make it into a %
+        if getMetricRatio(metric) :
+            y_avg = y_avg*100
+            min_y = min_y*100
+            max_y = max_y*100
+
         # Create custom indexing
         x = np.array(list(range(len(y_avg))))
         
@@ -475,11 +495,15 @@ class PDFReport:
         print("Generating heatmaps...")
         for metric in tqdm(metrics):
 
-            # Extract the metric values for the current metric
-            y = data[metric].to_numpy()
-       
+            # Extract the metric values for the current metric                  
             #if np.abs(y).max() > 1e-3:
             try: 
+                # if data is a ratio, make it into a %
+                if getMetricRatio(metric) :
+                    y = (data[metric]*100).to_numpy()
+                else:
+                    y = data[metric].to_numpy()
+
                 # Interpolate (x, t, y) to (X, T, Y)
                 Y = griddata((x, t), y, (X, T), method='linear')
 
@@ -497,7 +521,19 @@ class PDFReport:
             #     self.draw_warnings(emsg)
             #     print("[WARN] " + emsg)
 
-    def write(self):        
+    def draw_definition(self):
+        self.bold_title()
+        self.pdf.cell(text="Definition of Metrics", ln=True)
+        self.body()
+        self.pdf.ln(2)
+        self.pdf.cell(text="Source: Nvidia", ln=False)
+        self.pdf.ln(5)
+
+        definitions = pd.read_csv(CSV_DIR / "DCGM_Def_Metrics.csv", encoding='latin-1')
+        self.draw_dataframe(definitions)
+
+
+    def write(self, heatmap):        
         # Create new PDF file
         self.pdf = PDF.FPDF(orientation='L')
         self.pdf.add_font(fname=FONT_DIR / "DejaVuSans.ttf")
@@ -511,6 +547,10 @@ class PDFReport:
         # Draw the title and metadata
         self.draw_title()
         self.draw_metadata()
+        self.newpage()
+
+        # Draw definiton
+        self.draw_definition()
         self.newpage()
 
         # Draw summary
@@ -527,12 +567,13 @@ class PDFReport:
 
         # Draw load balancing
         self.draw_load_balancing()
-        
-        # Add vertical page
-        self.pdf.add_page(orientation='P')
 
         # Draw heatmaps
-        self.draw_heatmaps()
+        if heatmap:
+            # Add vertical page
+            self.pdf.add_page(orientation='P')
+
+            self.draw_heatmaps()
         
         # Save the PDF
         self.pdf.output(self.outfile)
